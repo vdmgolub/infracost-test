@@ -19,4 +19,3 @@ jobs:
         # See the cloud credentials section for the options
       with:
         path: ./
-        terraform_plan_flags: -var-file=my.tfvars
