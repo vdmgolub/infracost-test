@@ -40,5 +40,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         path: plan.json # Do not change as this file is generated above
-        post_condition: '{"has_diff": true}'
+        post_condition: '{"always": true}'
         show_skipped: true
