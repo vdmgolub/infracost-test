@@ -18,5 +18,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Do not change
         # See the cloud credentials section for the options
       with:
-        path: path/to/code
+        path: ./
         terraform_plan_flags: -var-file=my.tfvars
