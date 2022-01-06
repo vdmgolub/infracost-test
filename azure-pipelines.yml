@@ -1,0 +1,24 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  batch: true
+  branches:
+    include: [ master ]
+
+pool:
+  vmImage: windows-latest
+
+steps:
+  - task: InfracostSetup@0
+    inputs: 
+      apiKey: 'testcdd'
+      version: '0.9.16'
+  - bash: "infracost --version"
+  - bash: "echo $BUILD_REPOSITORY_PROVIDER"
+  - bash: "echo $BUILD_REPOSITORY_NAME"
+  - bash: "echo $GITHUB_TOKEN"
+  - bash: "echo $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"
+  - bash: "echo $GITHUB_API_URL"
