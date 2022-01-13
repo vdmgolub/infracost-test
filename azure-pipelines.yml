@@ -24,13 +24,13 @@ jobs:
           echo SYSTEM_PULLREQUEST_PULLREQUESTID: $SYSTEM_PULLREQUEST_PULLREQUESTID
           echo SYSTEM_ACCESSTOKEN: $SYSTEM_ACCESSTOKEN
           echo SYSTEM_PULLREQUEST_PULLREQUESTNUMBER: $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
+          echo BUILD_SOURCEVERSION: $BUILD_SOURCEVERSION
         displayName: Debug env vars
 
       - task: InfracostComment@0
         displayName: Post the comment
         inputs:
           path: /tmp/infracost.json
-          targetType: commit
           behavior: delete-and-new
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
