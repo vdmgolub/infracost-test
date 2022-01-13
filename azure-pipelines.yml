@@ -8,30 +8,18 @@ jobs:
       vmImage: ubuntu-latest
 
     steps:
-      - task: TerraformInstaller@0  # This can be obtained by installing the Microsoft Terraform extension: https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks
+      - task: TerraformInstaller@0
         displayName: Install Terraform
-
       - task: InfracostSetup@0
         displayName: Setup Infracost
         inputs:
           apiKey: $(infracostApiKey)
-
       - bash: infracost breakdown --path=./ --format=json --out-file=/tmp/infracost.json
         displayName: Run Infracost
-      - bash: |
-          echo GITHUB_TOKEN: $GITHUB_TOKEN
-          echo BUILD_REPOSITORY_PROVIDER: $BUILD_REPOSITORY_PROVIDER
-          echo SYSTEM_PULLREQUEST_PULLREQUESTID: $SYSTEM_PULLREQUEST_PULLREQUESTID
-          echo SYSTEM_ACCESSTOKEN: $SYSTEM_ACCESSTOKEN
-          echo SYSTEM_PULLREQUEST_PULLREQUESTNUMBER: $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
-          echo BUILD_SOURCEVERSION: $BUILD_SOURCEVERSION
-        displayName: Debug env vars
-
       - task: InfracostComment@0
         displayName: Post the comment
         inputs:
+          githubToken: $(githubToken)
           path: /tmp/infracost.json
           behavior: delete-and-new
-          targetType: $(INFRACOST_TARGET_TYPE)
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          targetType: $(infracostTargetType)
