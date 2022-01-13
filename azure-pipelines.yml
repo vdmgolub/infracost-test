@@ -1,24 +1,26 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+pr:
+  - master
 
-trigger:
-  batch: true
-  branches:
-    include: [ master ]
+jobs:
+  - job: terraform_directory
+    displayName: Terraform Directory
+    pool:
+      vmImage: ubuntu-latest
 
-pool:
-  vmImage: windows-latest
+    steps:
+      - task: TerraformInstaller@0  # This can be obtained by installing the Microsoft Terraform extension: https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks
+        displayName: Install Terraform
 
-steps:
-  - task: InfracostSetup@0
-    inputs: 
-      apiKey: 'testcdd'
-      version: '0.9.16'
-  - bash: "infracost --version"
-  - bash: "echo $BUILD_REPOSITORY_PROVIDER"
-  - bash: "echo $BUILD_REPOSITORY_NAME"
-  - bash: "echo $GITHUB_TOKEN"
-  - bash: "echo $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"
-  - bash: "echo $GITHUB_API_URL"
+      - task: InfracostSetup@0
+        displayName: Setup Infracost
+        inputs:
+          apiKey: $(infracostApiKey)
+
+      - bash: infracost breakdown --path=examples/terraform-directory/code --format=json --out-file=/tmp/infracost.json
+        displayName: Run Infracost
+
+      - task: InfracostComment@0
+        displayName: Post the comment
+        inputs:
+          path: /tmp/infracost.json
+          behavior: update # Create a single comment and update it. See https://github.com/infracost/infracost-azure-devops#comment-options for other options
