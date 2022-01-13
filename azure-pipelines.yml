@@ -19,9 +19,11 @@ jobs:
       - bash: infracost breakdown --path=./ --format=json --out-file=/tmp/infracost.json
         displayName: Run Infracost
       - bash: |
-          echo $GITHUB_TOKEN
-          echo $BUILD_REPOSITORY_PROVIDER
-          echo $(GITHUB_TOKEN)
+          echo GITHUB_TOKEN: $GITHUB_TOKEN
+          echo BUILD_REPOSITORY_PROVIDER: $BUILD_REPOSITORY_PROVIDER
+          echo SYSTEM_PULLREQUEST_PULLREQUESTID: $SYSTEM_PULLREQUEST_PULLREQUESTID
+          echo SYSTEM_ACCESSTOKEN: $SYSTEM_ACCESSTOKEN
+          echo SYSTEM_PULLREQUEST_PULLREQUESTNUMBER: $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
         displayName: Debug env vars
 
       - task: InfracostComment@0
