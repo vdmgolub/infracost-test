@@ -32,5 +32,6 @@ jobs:
         inputs:
           path: /tmp/infracost.json
           behavior: delete-and-new
+          targetType: $(INFRACOST_TARGET_TYPE)
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
