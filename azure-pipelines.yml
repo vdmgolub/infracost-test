@@ -18,9 +18,16 @@ jobs:
 
       - bash: infracost breakdown --path=./ --format=json --out-file=/tmp/infracost.json
         displayName: Run Infracost
+      - bash: |
+          echo $GITHUB_TOKEN
+          echo $BUILD_REPOSITORY_PROVIDER
+          echo $(GITHUB_TOKEN)
+        displayName: Debug env vars
 
       - task: InfracostComment@0
         displayName: Post the comment
         inputs:
           path: /tmp/infracost.json
           behavior: delete-and-new
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
