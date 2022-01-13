@@ -30,6 +30,7 @@ jobs:
         displayName: Post the comment
         inputs:
           path: /tmp/infracost.json
+          targetType: commit
           behavior: delete-and-new
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
