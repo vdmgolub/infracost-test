@@ -1,0 +1,25 @@
+pr:
+  - main
+
+jobs:
+  - job: terraform_directory
+    displayName: Terraform Directory
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+      - task: TerraformInstaller@0
+        displayName: Install Terraform
+      - task: InfracostSetup@0
+        displayName: Setup Infracost
+        inputs:
+          apiKey: $(infracostApiKey)
+      - bash: infracost breakdown --path=./ --format=json --out-file=/tmp/infracost.json
+        displayName: Run Infracost
+      - task: InfracostComment@0
+        displayName: Post the comment
+        inputs:
+          githubToken: $(githubToken)
+          path: /tmp/infracost.json
+          behavior: update
+          targetType: $(infracostTargetType)
