@@ -16,9 +16,14 @@ jobs:
           apiKey: $(infracostApiKey)
       - bash: infracost breakdown --path=./ --format=json --out-file=/tmp/infracost.json
         displayName: Run Infracost
+      - bash: |
+          echo BUILD_REASON $BUILD_REASON
+          echo SYSTEM_PULLREQUEST_PULLREQUESTNUMBER $SYSTEM_PULLREQUEST_PULLREQUESTNUMBER
       - task: InfracostComment@0
         displayName: Post the comment
         inputs:
           githubToken: $(githubToken)
           path: /tmp/infracost.json
           behavior: update
+        env:
+          SYSTEM_PULLREQUEST_PULLREQUESTNUMBER: 5
