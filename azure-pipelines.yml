@@ -22,4 +22,3 @@ jobs:
           githubToken: $(githubToken)
           path: /tmp/infracost.json
           behavior: update
-          targetType: $(infracostTargetType)
