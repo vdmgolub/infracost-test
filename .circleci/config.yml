@@ -9,7 +9,7 @@ jobs:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: cimg/base:stable
+      - image: infracost/infracost:ci-0.9
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
@@ -24,6 +24,12 @@ jobs:
             echo CIRCLE_PROJECT_REPONAME $CIRCLE_PROJECT_REPONAME
             echo CIRCLE_SHA1 $CIRCLE_SHA1
             echo CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_USERNAME
+            infracost comment github --path infracost.json \
+                                     --repo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
+                                     --pull-request ${CIRCLE_PULL_REQUEST##*/} \ `# or --commit $CIRCLE_SHA1` \
+                                     --github-token $GITHUB_TOKEN \
+                                     --behavior new
+
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
