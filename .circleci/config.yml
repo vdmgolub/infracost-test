@@ -26,7 +26,7 @@ jobs:
             echo CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_USERNAME
             infracost comment github --path infracost.json \
                                      --repo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
-                                     --pull-request ${CIRCLE_PULL_REQUEST##*/} \ `# or --commit $CIRCLE_SHA1` \
+                                     --commit $CIRCLE_SHA1 \ `# or --pull-request ${CIRCLE_PULL_REQUEST##*/}` \
                                      --github-token $GITHUB_TOKEN \
                                      --behavior new
 
