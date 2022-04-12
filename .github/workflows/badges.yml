@@ -1,0 +1,33 @@
+# The GitHub Actions docs (https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on)
+# describe other options for `on`, `pull_request` is a good default.
+on: workflow_dispatch
+jobs:
+  infracost:
+    runs-on: ubuntu-latest
+    name: Run Infracost
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # Install the Infracost CLI, see https://github.com/infracost/actions/tree/master/setup
+      # for other inputs such as version, and pricing_api_endpoint (for self-hosted users).
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v1
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate Infracost JSON
+        id: infracost-commands
+        run: |
+          infracost breakdown --path . --format json --out-file /tmp/infracost.json --terraform-parse-hcl
+          echo "::set-output name=totalMonthlyCost::$(jq '$(.totalMonthlyCost // 0) | tonumber' /tmp/infracost.json)"
+
+      - name: Create Awesome Badge
+        uses: schneegans/dynamic-badges-action@v1.2.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: c6b902a66bab20b9172e29df2f17722e
+          filename: test.json
+          label: Infracost Monthly Cost
+          message: ${{ steps.infracost-commands.outputs.totalMonthlyCost }}
+          color: blue
