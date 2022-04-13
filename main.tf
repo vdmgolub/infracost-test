@@ -1,5 +1,5 @@
 provider "aws" {
-  region                      = "us-east-1" # <<<<< Try changing this to eu-west-1 to compare the costs
+  region                      = "us-west-1" # <<<<< Try changing this to eu-west-1 to compare the costs
   skip_credentials_validation = true
   skip_requesting_account_id  = true
   access_key                  = "mock_access_key"
@@ -27,5 +27,5 @@ resource "aws_lambda_function" "hello_world" {
   role          = "arn:aws:lambda:us-east-1:account-id:resource-id"
   handler       = "exports.test"
   runtime       = "nodejs12.x"
-  memory_size   = 1024                      # <<<<< Try changing this to 512 to compare costs
+  memory_size   = 512                      # <<<<< Try changing this to 512 to compare costs
 }
