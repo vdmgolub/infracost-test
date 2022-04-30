@@ -1,0 +1,39 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  say-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: infracost/infracost:ci-0.9
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: |
+            echo CIRCLE_BUILD_URL $CIRCLE_BUILD_URL
+            echo CIRCLE_PR_NUMBER $CIRCLE_PR_NUMBER
+            echo CIRCLE_PULL_REQUEST $CIRCLE_PULL_REQUEST
+            echo PR number ${CIRCLE_PULL_REQUEST##*/}
+            echo CIRCLE_PROJECT_REPONAME $CIRCLE_PROJECT_REPONAME
+            echo CIRCLE_SHA1 $CIRCLE_SHA1
+            echo CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_USERNAME
+            infracost comment github --path infracost.json \
+                                     --repo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
+                                     --commit $CIRCLE_SHA1 \ `# or --pull-request ${CIRCLE_PULL_REQUEST##*/}` \
+                                     --github-token $GITHUB_TOKEN \
+                                     --behavior new
+
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  say-hello-workflow:
+    jobs:
+      - say-hello
