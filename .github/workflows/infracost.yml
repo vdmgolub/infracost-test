@@ -8,36 +8,20 @@ on:
 jobs:
   infracost:
     runs-on: ubuntu-latest
-    name: Show infracost diff
+
+    name: Run Infracost
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
 
-    - name: "Install terraform"
-      uses: hashicorp/setup-terraform@v1
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v1
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-    - name: "Terraform init"
-      id: init
-      run: terraform init
-      working-directory: ./
+      - name: Generate Infracost JSON
+        run: infracost breakdown --path . --terraform-parse-hcl --format json --out-file /tmp/infracost.json
 
-    - name: "Terraform plan"
-      id: plan
-      run: terraform plan -out plan.tfplan
-      working-directory: ./
-
-    - name: "Terraform show"
-      id: show
-      run: terraform show -json plan.tfplan
-      working-directory: ./
-
-    - name: "Save Plan JSON"
-      run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
-
-    - name: Run infracost diff
-      uses: infracost/infracost-gh-action@master # Use a specific version instead of master if locking is preferred
-      env:
-        INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        path: plan.json # Do not change as this file is generated above
+      - name: Post Infracost comment
+        run: |
+          infracost output --path /tmp/infracost.json --format github-comment >> $GITHUB_STEP_SUMMARY
