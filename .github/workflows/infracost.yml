@@ -7,38 +7,26 @@ on:
 jobs:
   infracost:
     runs-on: ubuntu-latest
-    name: Show infracost diff
+
+    name: Run Infracost
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v2
 
-    - name: "Install terraform"
-      uses: hashicorp/setup-terraform@v1
+      # Install the Infracost CLI, see https://github.com/infracost/actions/tree/master/setup
+      # for other inputs such as version, and pricing-api-endpoint (for self-hosted users).
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v1
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-    - name: "Terraform init"
-      id: init
-      run: terraform init
-      working-directory: ./
+      # Generate Infracost JSON output, the following docs might be useful:
+      # Multi-project/workspaces: https://www.infracost.io/docs/features/config_file
+      # Combine Infracost JSON files: https://www.infracost.io/docs/features/cli_commands/#combined-output-formats
+      - name: Generate Infracost JSON
+        run: infracost breakdown --path . --terraform-parse-hcl --format json --out-file /tmp/infracost.json
 
-    - name: "Terraform plan"
-      id: plan
-      run: terraform plan -out plan.tfplan
-      working-directory: ./
-
-    - name: "Terraform show"
-      id: show
-      run: terraform show -json plan.tfplan
-      working-directory: ./
-
-    - name: "Save Plan JSON"
-      run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
-
-    - name: Run infracost diff
-      uses: infracost/infracost-gh-action@master # Use a specific version instead of master if locking is preferred
-      env:
-        INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        path: plan.json # Do not change as this file is generated above
-        post_condition: '{"always": true}'
-        show_skipped: true
+      # See https://www.infracost.io/docs/features/cli_commands/#comment-on-pull-requests for other options.
+      - name: Post Infracost comment
+        run: |
+          infracost output --path /tmp/infracost.json --format github-comment >> $GITHUB_STEP_SUMMARY
