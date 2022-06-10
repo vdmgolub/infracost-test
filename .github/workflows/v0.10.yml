@@ -1,0 +1,53 @@
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+jobs:
+  infracost:
+    runs-on: ubuntu-latest
+
+    name: Run Infracost
+    steps:
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v1
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.pull_request.base.ref }}'
+
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          infracost breakdown --path . \
+                              --terraform-parse-hcl \
+                              --format json \
+                              --out-file /tmp/infracost-base.json
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v2
+
+      - name: Run Infracost no comment
+        run: |
+          infracost diff --path=. \
+                         --terraform-parse-hcl \
+                         --format=json \
+                         --compare-to=/tmp/infracost-base.json \
+                         --out-file=/tmp/infracost.json
+
+          # Post pull request comment in the same was as before by running:
+          # infracost comment github --path /tmp/infracost.json ...
+          infracost output --path=/tmp/infracost.json --format=table
+
+      - name: Run Infracost
+        run: |
+          infracost diff --path=. \
+                         --terraform-parse-hcl \
+                         --format=json \
+                         --compare-to=/tmp/infracost-base.json `# point this to the JSON output we generated in step 2` \
+                         --out-file=/tmp/infracost.json
+
+          # Post pull request comment in the same was as before by running:
+          # infracost comment github --path /tmp/infracost.json ...
+          infracost output --path=/tmp/infracost.json --format=table
